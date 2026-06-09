@@ -1,5 +1,11 @@
-FROM openjdk:21
+FROM python:3.11
 
-COPY target/app.jar app.jar
+WORKDIR /app
 
-ENTRYPOINT ["java","-jar","app.jar"]
+COPY requirements.txt .
+
+RUN pip install -r requirements.txt
+
+COPY . .
+
+CMD ["python", "app.py"]
