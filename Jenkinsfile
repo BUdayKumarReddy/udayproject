@@ -1,32 +1,27 @@
 pipeline {
-
     agent any
 
     stages {
 
-        stage('Clone') {
+        stage('Build Frontend') {
             steps {
-                git 'https://github.com/username/fullstack-app.git'
+                sh 'docker build -t frontend-test ./frontend'
             }
         }
 
         stage('Build Backend') {
             steps {
-                sh 'cd backend && mvn clean package'
+                sh 'docker build -t backend-test ./backend'
             }
         }
 
-        stage('Build Docker Images') {
-            steps {
-                sh 'docker compose build'
-            }
-        }
-
-        stage('Deploy Containers') {
+        stage('Deploy') {
             steps {
                 sh '''
-                docker compose down
-                docker compose up -d
+                docker rm -f frontend backend || true
+
+                docker run -d --name frontend -p 3000:80 frontend-test
+                docker run -d --name backend -p 5000:5000 backend-test
                 '''
             }
         }
